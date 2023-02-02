@@ -17,27 +17,30 @@ export default function handler(req, res) {
     const filePath = buildPath();
     const { events_categories, allEvents } = extractData(filePath);
 
-    if(!allEvents) {
+    if (!allEvents) {
         return res.status(404).json({
             status: 404,
             message: "Events data not found",
         });
     }
 
-    if(method === "POST") {
-        const { email, eventId} = req.body;
+    if (method === "POST") {
+        const { email, eventId } = req.body;
 
-        const validRegex =
-      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+        const validEmail = (Email) => {
+            if (/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(Email)) {
+                return false
+            } else {
+                return true;
+            }
+        };
 
-        if(!email | !email.includes(validRegex)) {
-            res.status(404).json({ message: "Invalid email address"});
-        }
+        if (validEmail(email)) return res.status(400).send({message: "Enter a valid email-id" })
 
         const newAllEvents = allEvents.map((ev) => {
-            if(ev.id === eventId) {
-                if(ev.emails_registered.includes(email)) {
-                    res.status(404).json({message: "This email has already been registered"});
+            if (ev.id === eventId) {
+                if (ev.emails_registered.includes(email)) {
+                    res.status(404).json({ message: "This email has already been registered" });
                     return ev
                 }
                 return {
@@ -48,7 +51,7 @@ export default function handler(req, res) {
             return ev;
         });
 
-        fs.writeFileSync(filePath, JSON.stringify({ events_categories, allEvents: newAllEvents}));
+        fs.writeFileSync(filePath, JSON.stringify({ events_categories, allEvents: newAllEvents }));
 
         res.status(201).json({
             message: `You have been registered successfully with the email: ${email} for the event: ${eventId}`,
