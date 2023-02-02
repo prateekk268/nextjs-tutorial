@@ -12,12 +12,20 @@ const SingleEvent = ({ data }) => {
     const emailValue = inputEmail.current.value;
     const eventId = router?.query.id;
 
-    const validRegex =
-      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    const validEmail = (Email) => {
+      if (/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(Email)){
+        return false
+      }else {
+        return true;
+      }
+        
+    };
 
-    if (!emailValue.match(validRegex)) {
-      setMessage("Please introduce a correct email address");
-    }
+    if(validEmail(emailValue)) setMessage("Please introduce a correct email address");
+
+    // if (!emailValue.match(validRegex)) {
+    //   setMessage("Please introduce a correct email address");
+    // }
 
     try {
       const response = await fetch("/api/email-registration", {
